@@ -6,11 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
 
 @SpringBootApplication
 public class YaCyMcpApplication {
@@ -25,20 +21,9 @@ public class YaCyMcpApplication {
                 && Boolean.parseBoolean(System.getenv(McpServerConfig.ENV_DISABLE_MCP_STDIO));
 
         if (mcpDisabled) {
-            log.info("YaCy MCP Service started as web server only (MCP stdio disabled)");
+            log.info("YaCy MCP Service - stdio mode disabled");
         } else {
             log.info("YaCy MCP Service started - MCP stdio active on stdin/stdout");
-            log.info("Web server running on port 8990 for health checks");
-        }
-    }
-
-    @Configuration
-    public static class McpModeConfig {
-
-        @Bean
-        @Primary
-        public ServerProperties serverProperties() {
-            return new ServerProperties();
         }
     }
 }

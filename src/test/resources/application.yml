@@ -1,9 +1,8 @@
-server:
-  port: 8990
-
 spring:
   application:
     name: yacy-mcp-service
+  main:
+    web-application-type: none
   
   datasource:
     driver-class-name: org.sqlite.JDBC

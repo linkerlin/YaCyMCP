@@ -1,12 +1,10 @@
-server:
-  port: 8990
-
 spring:
   application:
     name: yacy-mcp-service
   main:
     banner-mode: off
     log-startup-info: false
+    web-application-type: none
   
   datasource:
     driver-class-name: org.sqlite.JDBC
