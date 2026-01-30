@@ -4,16 +4,16 @@
 
 ## 技术栈
 
-- **框架**: agentscope-java
-- **Spring AI Alibaba**: 用于AI集成
-- **SQLite DB**: 轻量级数据库，存储搜索历史和爬虫记录
-- **jOOQ**: 类型安全的SQL查询构建器
-- **Spring Boot**: 应用程序框架
-- **Apache HttpClient**: YaCy API客户端
+- **框架**: Spring Boot 3.2.1
+- **AI集成**: Spring AI Alibaba 1.1.0.0 (Agent Framework + DashScope)
+- **Agent运行时**: AgentScope-Java 1.0.8
+- **MCP协议**: MCP Spring WebFlux 0.10.0
+- **数据库**: SQLite 3.44.1 + jOOQ 3.18.7
+- **HTTP客户端**: Apache HttpClient 5.3
 
 ## 功能特性
 
-### YaCy API集成
+### YaCy API工具
 
 本服务提供了以下YaCy API的MCP工具封装：
 
@@ -72,16 +72,29 @@ mvn spring-boot:run
 编辑 `src/main/resources/application.yml` 来配置：
 
 ```yaml
+# YaCy配置
 yacy:
   server-url: http://localhost:8090  # YaCy服务器地址
   username: admin                     # YaCy管理员用户名
   password: ""                        # YaCy管理员密码
 
+# Spring AI Alibaba配置
+spring:
+  ai:
+    dashscope:
+      api-key: ${DASHSCOPE_API_KEY:}     # DashScope API密钥
+      enabled: ${DASHSCOPE_ENABLED:false} # 启用DashScope AI功能
+
+# MCP配置
 mcp:
   server-name: YaCy MCP Service
   server-version: 1.0.0
-  server-port: 8080
 ```
+
+**注意**：如果要使用Spring AI Alibaba的AI功能，需要：
+1. 获取阿里云DashScope API密钥
+2. 设置环境变量：`export DASHSCOPE_API_KEY=your-key-here`
+3. 启用DashScope：`export DASHSCOPE_ENABLED=true`
 
 ## API端点
 
