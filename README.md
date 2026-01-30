@@ -98,25 +98,56 @@ mcp:
 
 ## API端点
 
-### MCP端点
+### 新的MCP标准端点 (推荐)
 
-- `GET /mcp/info` - 获取服务器信息
-- `GET /mcp/tools` - 列出所有可用工具
-- `POST /mcp/tools/execute` - 执行工具调用
+基于MCP SDK的标准实现:
+
+- `GET /mcp/sse` - SSE连接端点 (Server-Sent Events)
+- `POST /mcp/message` - MCP消息发送端点
 - `GET /mcp/health` - 健康检查
+
+### Legacy端点 (已弃用)
+
+- `GET /mcp/legacy/info` - 获取服务器信息
+- `GET /mcp/legacy/tools` - 列出所有可用工具
+- `POST /mcp/legacy/tools/execute` - 执行工具调用
+- `GET /mcp/legacy/health` - 健康检查
 
 ### 示例请求
 
-#### 列出所有工具
+#### 连接MCP服务器 (SSE)
 
-```bash
-curl http://localhost:8080/mcp/tools
+```javascript
+const eventSource = new EventSource('http://localhost:8080/mcp/sse');
+
+eventSource.onmessage = (event) => {
+  console.log('MCP Message:', JSON.parse(event.data));
+};
 ```
 
-#### 执行搜索
+#### 调用工具 (通过MCP协议)
+
+```javascript
+fetch('http://localhost:8080/mcp/message?sessionId=your-session-id', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    method: 'tools/call',
+    params: {
+      name: 'yacy_search',
+      arguments: {
+        query: 'AI research',
+        count: 20
+      }
+    }
+  })
+});
+```
+
+#### Legacy方式执行搜索 (已弃用)
 
 ```bash
-curl -X POST http://localhost:8080/mcp/tools/execute \
+curl -X POST http://localhost:8080/mcp/legacy/tools/execute \
   -H "Content-Type: application/json" \
   -d '{
     "name": "yacy_search",
@@ -124,20 +155,6 @@ curl -X POST http://localhost:8080/mcp/tools/execute \
       "query": "java programming",
       "count": 10,
       "offset": 0
-    }
-  }'
-```
-
-#### 启动爬虫
-
-```bash
-curl -X POST http://localhost:8080/mcp/tools/execute \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "yacy_start_crawl",
-    "arguments": {
-      "url": "https://example.com",
-      "depth": 2
     }
   }'
 ```
