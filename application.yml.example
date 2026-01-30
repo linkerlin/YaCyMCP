@@ -2,7 +2,7 @@
 # Copy this file to application.yml and modify as needed
 
 server:
-  port: 8080
+  port: 8990
 
 spring:
   application:
@@ -40,7 +40,7 @@ yacy:
 mcp:
   server-name: YaCy MCP Service
   server-version: 1.0.0
-  server-port: 8080
+  server-port: 8990
 
 # AgentScope configuration
 agentscope:

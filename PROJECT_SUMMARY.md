@@ -170,7 +170,7 @@ mvn spring-boot:run
 ### 3. Docker部署
 ```bash
 docker build -t yacy-mcp .
-docker run -p 8080:8080 yacy-mcp
+docker run -p 8990:8990 yacy-mcp
 ```
 
 ### 4. Docker Compose

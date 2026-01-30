@@ -4,7 +4,7 @@ services:
   yacy-mcp:
     build: .
     ports:
-      - "8080:8080"
+      - "8990:8990"
     environment:
       - YACY_SERVER_URL=http://yacy:8090
       - YACY_USERNAME=admin

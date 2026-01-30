@@ -118,7 +118,7 @@ GET /mcp/legacy/info
 
 ```javascript
 // 使用MCP客户端连接
-const eventSource = new EventSource('http://localhost:8080/mcp/sse');
+const eventSource = new EventSource('http://localhost:8990/mcp/sse');
 
 eventSource.onmessage = (event) => {
   console.log('MCP Message:', JSON.parse(event.data));
@@ -133,7 +133,7 @@ eventSource.onerror = (error) => {
 
 ```javascript
 // 发送工具调用请求
-fetch('http://localhost:8080/mcp/message?sessionId=xxx', {
+fetch('http://localhost:8990/mcp/message?sessionId=xxx', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json'

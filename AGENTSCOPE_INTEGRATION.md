@@ -51,7 +51,7 @@ import com.agentscope.mcp.McpConfig;
 
 // 创建MCP客户端配置
 McpConfig config = McpConfig.builder()
-    .serverUrl("http://localhost:8080/mcp")
+    .serverUrl("http://localhost:8990/mcp")
     .build();
 
 // 创建MCP客户端
@@ -206,7 +206,7 @@ public class YaCyAgentPipeline {
         // 创建MCP客户端
         McpClient mcpClient = new McpClient(
             McpConfig.builder()
-                .serverUrl("http://localhost:8080/mcp")
+                .serverUrl("http://localhost:8990/mcp")
                 .build()
         );
         
@@ -299,7 +299,7 @@ public Message executeWithRetry(Message input) {
 # agentscope-config.yml
 mcp:
   yacy:
-    server-url: http://localhost:8080/mcp
+    server-url: http://localhost:8990/mcp
     timeout: 30000
     retry-count: 3
     

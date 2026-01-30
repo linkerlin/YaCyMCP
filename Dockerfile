@@ -9,7 +9,7 @@ COPY target/yacy-mcp-1.0.0-SNAPSHOT.jar app.jar
 RUN mkdir -p /app/data
 
 # Expose port
-EXPOSE 8080
+EXPOSE 8990
 
 # Set environment variables
 ENV JAVA_OPTS=""

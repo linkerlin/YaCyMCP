@@ -65,7 +65,7 @@ java -jar target/yacy-mcp-1.0.0-SNAPSHOT.jar
 mvn spring-boot:run
 ```
 
-服务将在 http://localhost:8080 启动。
+服务将在 http://localhost:8990 启动。
 
 ### 配置
 
@@ -102,7 +102,7 @@ mcp:
 
 ### 1. 启动 MCP 服务
 
-确保 MCP 服务已启动并运行在 `http://localhost:8080`：
+确保 MCP 服务已启动并运行在 `http://localhost:8990`：
 
 ```bash
 mvn spring-boot:run
@@ -174,7 +174,7 @@ java -jar target/yacy-mcp-1.0.0-SNAPSHOT.jar
         "YACY_PASSWORD": "",
         "DASHSCOPE_API_KEY": "sk-xxxxxxxxxxxxxxxx",
         "DASHSCOPE_ENABLED": "true",
-        "SERVER_PORT": "8080"
+        "SERVER_PORT": "8990"
       },
       "disabled": false,
       "autoApprove": ["yacy_search", "yacy_get_status"]
@@ -215,7 +215,7 @@ java -jar target/yacy-mcp-1.0.0-SNAPSHOT.jar
 #### 连接MCP服务器 (SSE)
 
 ```javascript
-const eventSource = new EventSource('http://localhost:8080/mcp/sse');
+const eventSource = new EventSource('http://localhost:8990/mcp/sse');
 
 eventSource.onmessage = (event) => {
   console.log('MCP Message:', JSON.parse(event.data));
@@ -225,7 +225,7 @@ eventSource.onmessage = (event) => {
 #### 调用工具 (通过MCP协议)
 
 ```javascript
-fetch('http://localhost:8080/mcp/message?sessionId=your-session-id', {
+fetch('http://localhost:8990/mcp/message?sessionId=your-session-id', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -244,7 +244,7 @@ fetch('http://localhost:8080/mcp/message?sessionId=your-session-id', {
 #### Legacy方式执行搜索 (已弃用)
 
 ```bash
-curl -X POST http://localhost:8080/mcp/legacy/tools/execute \
+curl -X POST http://localhost:8990/mcp/legacy/tools/execute \
   -H "Content-Type: application/json" \
   -d '{
     "name": "yacy_search",

@@ -87,7 +87,7 @@ yacy:
 mcp:
   server-name: YaCy MCP Service
   server-version: 1.0.0
-  server-port: 8080
+  server-port: 8990
   agent-scope-enabled: true
 
 # 日志配置
@@ -116,14 +116,14 @@ java -jar target/yacy-mcp-1.0.0-SNAPSHOT.jar
 nohup java -jar target/yacy-mcp-1.0.0-SNAPSHOT.jar > app.log 2>&1 &
 ```
 
-服务启动后，默认监听端口 `8080`。
+服务启动后，默认监听端口 `8990`。
 
 ## API使用
 
 ### 1. 健康检查
 
 ```bash
-curl http://localhost:8080/mcp/health
+curl http://localhost:8990/mcp/health
 ```
 
 响应:
@@ -134,7 +134,7 @@ OK
 ### 2. 获取服务器信息
 
 ```bash
-curl http://localhost:8080/mcp/info
+curl http://localhost:8990/mcp/info
 ```
 
 响应:
@@ -149,7 +149,7 @@ curl http://localhost:8080/mcp/info
 ### 3. 列出所有可用工具
 
 ```bash
-curl http://localhost:8080/mcp/tools
+curl http://localhost:8990/mcp/tools
 ```
 
 ### 4. 执行工具调用
@@ -157,7 +157,7 @@ curl http://localhost:8080/mcp/tools
 #### 搜索示例
 
 ```bash
-curl -X POST http://localhost:8080/mcp/tools/execute \
+curl -X POST http://localhost:8990/mcp/tools/execute \
   -H "Content-Type: application/json" \
   -d '{
     "name": "yacy_search",
@@ -172,7 +172,7 @@ curl -X POST http://localhost:8080/mcp/tools/execute \
 #### 获取状态示例
 
 ```bash
-curl -X POST http://localhost:8080/mcp/tools/execute \
+curl -X POST http://localhost:8990/mcp/tools/execute \
   -H "Content-Type: application/json" \
   -d '{
     "name": "yacy_get_status",
@@ -183,7 +183,7 @@ curl -X POST http://localhost:8080/mcp/tools/execute \
 #### 启动爬虫示例
 
 ```bash
-curl -X POST http://localhost:8080/mcp/tools/execute \
+curl -X POST http://localhost:8990/mcp/tools/execute \
   -H "Content-Type: application/json" \
   -d '{
     "name": "yacy_start_crawl",
