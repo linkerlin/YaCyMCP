@@ -100,10 +100,42 @@ public class YaCyClient {
 
     /**
      * Get network information
+     * Uses seedlist.json to get peer statistics
      */
     public JsonNode getNetworkInfo() throws IOException {
-        String url = config.getServerUrl() + "/Network.json";
-        return executeGet(url);
+        String url = config.getServerUrl() + "/yacy/seedlist.json";
+        JsonNode peersResult = executeGet(url);
+        
+        // Build network statistics from peers data
+        Map<String, Object> networkInfo = new java.util.LinkedHashMap<>();
+        JsonNode peers = peersResult.path("peers");
+        
+        int totalPeers = 0;
+        int activePeers = 0;
+        long totalLinks = 0;
+        long totalWords = 0;
+        
+        if (peers.isArray()) {
+            totalPeers = peers.size();
+            for (JsonNode peer : peers) {
+                // Count active peers (those seen recently)
+                String lastSeen = peer.path("LastSeen").asText("");
+                if (!lastSeen.isEmpty()) {
+                    activePeers++;
+                }
+                // Sum up links and words
+                totalLinks += peer.path("LCount").asLong(0);
+                totalWords += peer.path("ICount").asLong(0);
+            }
+        }
+        
+        networkInfo.put("totalPeers", totalPeers);
+        networkInfo.put("activePeers", activePeers);
+        networkInfo.put("totalLinks", totalLinks);
+        networkInfo.put("totalWords", totalWords);
+        networkInfo.put("networkAvailable", totalPeers > 0);
+        
+        return objectMapper.valueToTree(networkInfo);
     }
 
     /**
@@ -157,9 +189,10 @@ public class YaCyClient {
 
     /**
      * Get peer information
+     * Uses seedlist.json which returns JSON format
      */
     public JsonNode getPeers() throws IOException {
-        String url = config.getServerUrl() + "/Network.xml?table=peers";
+        String url = config.getServerUrl() + "/yacy/seedlist.json";
         return executeGet(url);
     }
 
