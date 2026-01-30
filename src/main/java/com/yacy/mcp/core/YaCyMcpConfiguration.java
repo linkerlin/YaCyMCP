@@ -21,7 +21,7 @@ public class YaCyMcpConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(YaCyMcpConfiguration.class);
 
-    @Value("${dashscope.api.key:}")
+    @Value("${spring.ai.dashscope.api-key:}")
     private String dashscopeApiKey;
 
     /**
