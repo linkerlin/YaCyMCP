@@ -175,6 +175,29 @@
                     <target>${java.version}</target>
                 </configuration>
             </plugin>
+
+            <!-- Copy JAR to project root after packaging -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <copy file="${project.build.directory}/${project.build.finalName}.jar"
+                                      tofile="${project.basedir}/yacy-mcp.jar"
+                                      overwrite="true"/>
+                                <echo message="Copied JAR to project root: ${project.basedir}/yacy-mcp.jar"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
