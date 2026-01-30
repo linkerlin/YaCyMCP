@@ -146,7 +146,9 @@ public class McpService {
 
         // Log search to database
         int resultCount = result.has("channels") ? result.get("channels").size() : 0;
-        databaseService.logSearch(query, resultCount, duration);
+        if (databaseService != null) {
+            databaseService.logSearch(query, resultCount, duration);
+        }
 
         return McpToolCallResponse.success(result);
     }
