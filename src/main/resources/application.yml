@@ -19,7 +19,7 @@ spring:
 yacy:
   server-url: ${YACY_API_URL:${YACY_SERVER_URL:http://localhost:8090}}
   username: ${YACY_USERNAME:admin}
-  password: ${YACY_PASSWORD:}
+  password: ${YACY_PASSWORD:steper123456789}
   connection-timeout: 30000
   socket-timeout: 30000
 
