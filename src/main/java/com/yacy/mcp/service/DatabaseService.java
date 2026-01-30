@@ -56,10 +56,12 @@ public class DatabaseService {
 
     public void logSearch(String query, int resultCount, long executionTimeMs) {
         try {
-            dsl.execute(
-                "INSERT INTO search_history (query, result_count, execution_time_ms) VALUES (?, ?, ?)",
-                query, resultCount, executionTimeMs
-            );
+            dsl.insertInto(
+                org.jooq.impl.DSL.table("search_history"),
+                org.jooq.impl.DSL.field("query"),
+                org.jooq.impl.DSL.field("result_count"),
+                org.jooq.impl.DSL.field("execution_time_ms")
+            ).values(query, resultCount, executionTimeMs).execute();
         } catch (Exception e) {
             log.error("Error logging search", e);
         }
@@ -67,10 +69,12 @@ public class DatabaseService {
 
     public void logCrawl(String url, int depth, String status) {
         try {
-            dsl.execute(
-                "INSERT INTO crawl_history (url, depth, status) VALUES (?, ?, ?)",
-                url, depth, status
-            );
+            dsl.insertInto(
+                org.jooq.impl.DSL.table("crawl_history"),
+                org.jooq.impl.DSL.field("url"),
+                org.jooq.impl.DSL.field("depth"),
+                org.jooq.impl.DSL.field("status")
+            ).values(url, depth, status).execute();
         } catch (Exception e) {
             log.error("Error logging crawl", e);
         }

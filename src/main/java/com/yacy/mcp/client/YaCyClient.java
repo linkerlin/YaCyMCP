@@ -3,21 +3,23 @@ package com.yacy.mcp.client;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yacy.mcp.config.YaCyConfig;
+import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.util.Timeout;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.Map;
 
 /**
  * Client for interacting with YaCy API
@@ -29,11 +31,33 @@ public class YaCyClient {
     private final YaCyConfig config;
     private final ObjectMapper objectMapper;
     private final CloseableHttpClient httpClient;
+    private final RequestConfig requestConfig;
 
     public YaCyClient(YaCyConfig config) {
         this.config = config;
         this.objectMapper = new ObjectMapper();
-        this.httpClient = HttpClients.createDefault();
+        
+        // Configure timeouts
+        this.requestConfig = RequestConfig.custom()
+            .setConnectionRequestTimeout(Timeout.ofMilliseconds(config.getConnectionTimeout()))
+            .setResponseTimeout(Timeout.ofMilliseconds(config.getSocketTimeout()))
+            .build();
+        
+        this.httpClient = HttpClients.custom()
+            .setDefaultRequestConfig(requestConfig)
+            .build();
+    }
+    
+    @PreDestroy
+    public void cleanup() {
+        try {
+            if (httpClient != null) {
+                httpClient.close();
+                log.info("HTTP client closed successfully");
+            }
+        } catch (IOException e) {
+            log.error("Error closing HTTP client", e);
+        }
     }
 
     /**
@@ -138,6 +162,7 @@ public class YaCyClient {
 
     private JsonNode executeGet(String url) throws IOException {
         HttpGet get = new HttpGet(url);
+        get.setConfig(requestConfig);
         addAuthHeader(get);
         return executeRequest(get);
     }

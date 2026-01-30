@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class McpToolCallResponse {
-    private boolean isError;
+    private boolean error;
     private Object content;
 
     public static McpToolCallResponse success(Object content) {

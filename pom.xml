@@ -18,7 +18,8 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.boot.version>3.2.1</spring.boot.version>
-        <spring.ai.alibaba.version>1.0.0-M2</spring.ai.alibaba.version>
+        <spring.ai.alibaba.version>1.0.0-M6</spring.ai.alibaba.version>
+        <agentscope.version>1.0.8</agentscope.version>
         <jooq.version>3.18.7</jooq.version>
         <sqlite.version>3.44.1.0</sqlite.version>
     </properties>
@@ -50,6 +51,62 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+
+        <!-- ==================== Spring AI Alibaba (MCP + DashScope) ==================== -->
+        <!-- Spring AI Alibaba Agent Framework -->
+        <dependency>
+            <groupId>com.alibaba.cloud.ai</groupId>
+            <artifactId>spring-ai-alibaba-agent-framework</artifactId>
+            <version>1.1.0.0</version>
+            <exclusions>
+                <!-- 排除 tools.jackson 避免与 Spring Boot 的 com.fasterxml.jackson 冲突 -->
+                <exclusion>
+                    <groupId>tools.jackson.core</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <!-- 排除 json-schema-validator 避免间接引入 tools.jackson -->
+                <exclusion>
+                    <groupId>com.networknt</groupId>
+                    <artifactId>json-schema-validator</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- DashScope ChatModel 支持（如果使用其他模型，请跳转 Spring AI 文档选择对应的 starter） -->
+        <dependency>
+            <groupId>com.alibaba.cloud.ai</groupId>
+            <artifactId>spring-ai-alibaba-starter-dashscope</artifactId>
+            <version>1.1.0.0</version>
+            <exclusions>
+                <!-- 排除 tools.jackson 避免与 Spring Boot 的 com.fasterxml.jackson 冲突 -->
+                <exclusion>
+                    <groupId>tools.jackson.core</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- MCP Server/Client 支持 -->
+        <dependency>
+            <groupId>io.modelcontextprotocol.sdk</groupId>
+            <artifactId>mcp-spring-webflux</artifactId>
+            <version>0.10.0</version>
+        </dependency>
+
+        <!-- ==================== AgentScope-Java (运行时基座) ==================== -->
+        <!-- 使用官方推荐的 all-in-one 依赖 -->
+        <dependency>
+            <groupId>io.agentscope</groupId>
+            <artifactId>agentscope</artifactId>
+            <version>${agentscope.version}</version>
+            <exclusions>
+                <!-- 排除 json-schema-validator 避免间接引入 tools.jackson -->
+                <exclusion>
+                    <groupId>com.networknt</groupId>
+                    <artifactId>json-schema-validator</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- SQLite -->
@@ -108,12 +165,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

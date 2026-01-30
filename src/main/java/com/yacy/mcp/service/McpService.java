@@ -123,9 +123,21 @@ public class McpService {
         try {
             log.info("Executing tool: {} with arguments: {}", request.getName(), request.getArguments());
 
+            // Validate request
+            if (request.getName() == null || request.getName().isEmpty()) {
+                return McpToolCallResponse.error("Tool name is required");
+            }
+            
+            if (request.getArguments() == null) {
+                return McpToolCallResponse.error("Arguments cannot be null");
+            }
+
             JsonNode result = switch (request.getName()) {
                 case "yacy_search" -> {
                     String query = (String) request.getArguments().get("query");
+                    if (query == null || query.isEmpty()) {
+                        throw new IllegalArgumentException("Query parameter is required");
+                    }
                     int count = getIntArg(request.getArguments(), "count", 10);
                     int offset = getIntArg(request.getArguments(), "offset", 0);
                     yield yaCyClient.search(query, count, offset);
@@ -134,6 +146,9 @@ public class McpService {
                 case "yacy_get_network" -> yaCyClient.getNetworkInfo();
                 case "yacy_start_crawl" -> {
                     String url = (String) request.getArguments().get("url");
+                    if (url == null || url.isEmpty()) {
+                        throw new IllegalArgumentException("URL parameter is required");
+                    }
                     int depth = getIntArg(request.getArguments(), "depth", 3);
                     yield yaCyClient.startCrawl(url, depth);
                 }
@@ -146,12 +161,18 @@ public class McpService {
                 }
                 case "yacy_get_document" -> {
                     String urlhash = (String) request.getArguments().get("urlhash");
+                    if (urlhash == null || urlhash.isEmpty()) {
+                        throw new IllegalArgumentException("URL hash parameter is required");
+                    }
                     yield yaCyClient.getSearchResult(urlhash);
                 }
                 default -> throw new IllegalArgumentException("Unknown tool: " + request.getName());
             };
 
             return McpToolCallResponse.success(result);
+        } catch (IllegalArgumentException e) {
+            log.warn("Invalid argument for tool {}: {}", request.getName(), e.getMessage());
+            return McpToolCallResponse.error(e.getMessage());
         } catch (Exception e) {
             log.error("Error executing tool: " + request.getName(), e);
             return McpToolCallResponse.error(e.getMessage());
@@ -173,7 +194,12 @@ public class McpService {
         if (value instanceof Integer) {
             return (Integer) value;
         } else if (value instanceof String) {
-            return Integer.parseInt((String) value);
+            try {
+                return Integer.parseInt((String) value);
+            } catch (NumberFormatException e) {
+                log.warn("Invalid integer value for {}: {}, using default: {}", key, value, defaultValue);
+                return defaultValue;
+            }
         }
         return defaultValue;
     }

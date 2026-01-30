@@ -21,14 +21,4 @@ public class McpConfig {
      * MCP server version
      */
     private String serverVersion = "1.0.0";
-    
-    /**
-     * MCP server port
-     */
-    private int serverPort = 8080;
-    
-    /**
-     * Enable agent scope integration
-     */
-    private boolean agentScopeEnabled = true;
 }
