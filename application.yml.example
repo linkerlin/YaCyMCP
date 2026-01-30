@@ -1,0 +1,60 @@
+# Application Configuration Example
+# Copy this file to application.yml and modify as needed
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name: yacy-mcp-service
+  
+  datasource:
+    driver-class-name: org.sqlite.JDBC
+    url: jdbc:sqlite:data/yacy_mcp.db
+
+# YaCy configuration
+yacy:
+  # YaCy server URL
+  server-url: http://localhost:8090
+  
+  # YaCy admin credentials (optional, depends on your YaCy setup)
+  username: admin
+  password: ""
+  
+  # Connection timeouts in milliseconds
+  connection-timeout: 30000
+  socket-timeout: 30000
+
+# MCP configuration
+mcp:
+  server-name: YaCy MCP Service
+  server-version: 1.0.0
+  server-port: 8080
+  
+  # Enable agent scope integration (for future use)
+  agent-scope-enabled: true
+
+# Logging configuration
+logging:
+  level:
+    # Application logging
+    com.yacy.mcp: INFO
+    
+    # Spring framework logging
+    org.springframework: INFO
+    
+    # jOOQ logging (useful for debugging SQL)
+    org.jooq: INFO
+    
+    # HTTP client logging (for debugging API calls)
+    org.apache.hc.client5: INFO
+    
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    
+  # Optional: log to file
+  # file:
+  #   name: logs/yacy-mcp.log
+  #   max-size: 10MB
+  #   max-history: 30

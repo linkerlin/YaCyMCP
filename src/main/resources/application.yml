@@ -1,0 +1,37 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: yacy-mcp-service
+  
+  datasource:
+    driver-class-name: org.sqlite.JDBC
+    url: jdbc:sqlite:data/yacy_mcp.db
+  
+  ai:
+    dashscope:
+      api-key: ${DASHSCOPE_API_KEY:}  # Set via environment variable
+      enabled: ${DASHSCOPE_ENABLED:false}  # Enable when API key is available
+
+# YaCy configuration
+yacy:
+  server-url: ${YACY_SERVER_URL:http://localhost:8090}
+  username: ${YACY_USERNAME:admin}
+  password: ${YACY_PASSWORD:}
+  connection-timeout: 30000
+  socket-timeout: 30000
+
+# MCP configuration
+mcp:
+  server-name: YaCy MCP Service
+  server-version: 1.0.0
+
+# Logging configuration
+logging:
+  level:
+    com.yacy.mcp: INFO
+    org.springframework: INFO
+    org.jooq: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"

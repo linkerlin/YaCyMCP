@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  yacy-mcp:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - YACY_SERVER_URL=http://yacy:8090
+      - YACY_USERNAME=admin
+      - YACY_PASSWORD=
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - yacy
+
+  yacy:
+    image: yacy/yacy_search_server:latest
+    ports:
+      - "8090:8090"
+    volumes:
+      - yacy_data:/opt/yacy_search_server/DATA
+
+volumes:
+  yacy_data:
