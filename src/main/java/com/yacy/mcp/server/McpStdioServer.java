@@ -16,21 +16,26 @@ public class McpStdioServer {
 
     private final McpService mcpService;
     private final ObjectMapper objectMapper;
-    private final PrintStream stdout;
     private final BufferedReader stdin;
     private volatile boolean running = false;
+    private volatile PrintStream outputStream;
     private ExecutorService executor;
+    private final BlockingQueue<String> messageQueue = new LinkedBlockingQueue<>();
+    private final List<String> capturedOutput = Collections.synchronizedList(new ArrayList<>());
 
     public McpStdioServer(McpService mcpService) {
         this.mcpService = mcpService;
         this.objectMapper = new ObjectMapper();
-        this.stdout = new PrintStream(new BufferedOutputStream(System.out), true);
+        this.outputStream = System.out;
         this.stdin = new BufferedReader(new InputStreamReader(System.in));
     }
 
     public void start() {
         log.info("Starting MCP Stdio Server...");
         running = true;
+
+        outputStream = System.out;
+
         executor = Executors.newSingleThreadExecutor();
 
         executor.submit(() -> {
@@ -57,7 +62,30 @@ public class McpStdioServer {
         log.info("MCP Stdio Server started successfully");
     }
 
-    private void handleMessage(String line) throws Exception {
+    public void processRequest(String jsonRequest) {
+        if (!jsonRequest.isEmpty()) {
+            try {
+                handleMessage(jsonRequest);
+            } catch (Exception e) {
+                log.error("Error processing request: {}", jsonRequest, e);
+                sendError(null, -32600, "Invalid JSON: " + e.getMessage());
+            }
+        }
+    }
+
+    public List<String> getCapturedOutput() {
+        return new ArrayList<>(capturedOutput);
+    }
+
+    public void clearCapturedOutput() {
+        capturedOutput.clear();
+    }
+
+    public void setOutputStream(PrintStream stream) {
+        this.outputStream = stream;
+    }
+
+    public void handleMessage(String line) throws Exception {
         JsonNode json = objectMapper.readTree(line);
         String jsonrpc = json.has("jsonrpc") ? json.get("jsonrpc").asText() : null;
 
@@ -224,8 +252,7 @@ public class McpStdioServer {
         response.put("result", result);
 
         String json = toJson(response);
-        stdout.println(json);
-        stdout.flush();
+        writeOutput(json);
         log.debug("Sent response: {}", json.substring(0, Math.min(200, json.length())));
     }
 
@@ -239,9 +266,16 @@ public class McpStdioServer {
         ));
 
         String json = toJson(response);
-        stdout.println(json);
-        stdout.flush();
+        writeOutput(json);
         log.debug("Sent error: {}", json);
+    }
+
+    private void writeOutput(String json) {
+        if (outputStream != null) {
+            outputStream.println(json);
+            outputStream.flush();
+        }
+        capturedOutput.add(json);
     }
 
     private String toJson(Object obj) {
@@ -269,5 +303,9 @@ public class McpStdioServer {
         }
 
         log.info("MCP Stdio Server stopped");
+    }
+
+    public boolean isRunning() {
+        return running;
     }
 }
