@@ -1,117 +1,108 @@
 package com.yacy.mcp.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yacy.mcp.client.YaCyClient;
-import com.yacy.mcp.model.*;
-import lombok.extern.slf4j.Slf4j;
+import com.yacy.mcp.model.McpToolCallRequest;
+import com.yacy.mcp.model.McpToolCallResponse;
+import com.yacy.mcp.model.McpToolDefinition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
- * MCP Service implementing YaCy tools
+ * MCP Service - Core service for handling MCP tool calls
+ * Integrates with Spring AI Alibaba and AgentScope-Java
  */
-@Slf4j
 @Service
 public class McpService {
 
-    private final YaCyClient yaCyClient;
+    private static final Logger log = LoggerFactory.getLogger(McpService.class);
 
-    public McpService(YaCyClient yaCyClient) {
+    private final YaCyClient yaCyClient;
+    private final DatabaseService databaseService;
+    private final ObjectMapper objectMapper;
+
+    public McpService(YaCyClient yaCyClient, DatabaseService databaseService) {
         this.yaCyClient = yaCyClient;
+        this.databaseService = databaseService;
+        this.objectMapper = new ObjectMapper();
     }
 
     /**
-     * Get list of available tools
+     * Get all available MCP tool definitions
      */
-    public List<McpTool> listTools() {
-        List<McpTool> tools = new ArrayList<>();
+    public List<McpToolDefinition> getToolDefinitions() {
+        List<McpToolDefinition> tools = new ArrayList<>();
 
         // Search tool
-        tools.add(new McpTool(
-                "yacy_search",
-                "Search the YaCy index for documents matching a query",
-                createSchema(
-                        Map.of(
-                                "query", Map.of("type", "string", "description", "Search query"),
-                                "count", Map.of("type", "integer", "description", "Maximum number of results", "default", 10),
-                                "offset", Map.of("type", "integer", "description", "Start offset for results", "default", 0)
-                        ),
-                        List.of("query")
-                )
-        ));
+        tools.add(McpToolDefinition.builder()
+                .name("yacy_search")
+                .description("Search the YaCy index for documents matching a query")
+                .inputSchema(createSearchSchema())
+                .build());
 
-        // Get status tool
-        tools.add(new McpTool(
-                "yacy_get_status",
-                "Get YaCy server status and statistics",
-                createSchema(Map.of(), List.of())
-        ));
+        // Status tool
+        tools.add(McpToolDefinition.builder()
+                .name("yacy_get_status")
+                .description("Get YaCy server status information")
+                .inputSchema(createEmptySchema())
+                .build());
 
-        // Get network info tool
-        tools.add(new McpTool(
-                "yacy_get_network",
-                "Get YaCy network information and peer statistics",
-                createSchema(Map.of(), List.of())
-        ));
+        // Network tool
+        tools.add(McpToolDefinition.builder()
+                .name("yacy_get_network")
+                .description("Get YaCy network information")
+                .inputSchema(createEmptySchema())
+                .build());
 
-        // Start crawl tool
-        tools.add(new McpTool(
-                "yacy_start_crawl",
-                "Start a new web crawl from a given URL",
-                createSchema(
-                        Map.of(
-                                "url", Map.of("type", "string", "description", "Starting URL for the crawl"),
-                                "depth", Map.of("type", "integer", "description", "Maximum crawl depth", "default", 3)
-                        ),
-                        List.of("url")
-                )
-        ));
+        // Crawl tool
+        tools.add(McpToolDefinition.builder()
+                .name("yacy_start_crawl")
+                .description("Start crawling a URL in YaCy")
+                .inputSchema(createCrawlSchema())
+                .build());
 
-        // Get index info tool
-        tools.add(new McpTool(
-                "yacy_get_index_info",
-                "Get information about the YaCy search index",
-                createSchema(Map.of(), List.of())
-        ));
+        // Index info tool
+        tools.add(McpToolDefinition.builder()
+                .name("yacy_get_index_info")
+                .description("Get YaCy index information")
+                .inputSchema(createEmptySchema())
+                .build());
 
-        // Get peers tool
-        tools.add(new McpTool(
-                "yacy_get_peers",
-                "Get information about connected YaCy peers",
-                createSchema(Map.of(), List.of())
-        ));
+        // Peers tool
+        tools.add(McpToolDefinition.builder()
+                .name("yacy_get_peers")
+                .description("Get YaCy peer information")
+                .inputSchema(createEmptySchema())
+                .build());
 
-        // Get performance tool
-        tools.add(new McpTool(
-                "yacy_get_performance",
-                "Get YaCy performance statistics and queue information",
-                createSchema(Map.of(), List.of())
-        ));
+        // Performance tool
+        tools.add(McpToolDefinition.builder()
+                .name("yacy_get_performance")
+                .description("Get YaCy performance statistics")
+                .inputSchema(createEmptySchema())
+                .build());
 
-        // Get host browser tool
-        tools.add(new McpTool(
-                "yacy_get_host_browser",
-                "Browse hosts in the YaCy index",
-                createSchema(
-                        Map.of(
-                                "path", Map.of("type", "string", "description", "Path to browse", "default", "")
-                        ),
-                        List.of()
-                )
-        ));
+        // Host browser tool
+        tools.add(McpToolDefinition.builder()
+                .name("yacy_get_host_browser")
+                .description("Browse hosts in YaCy index")
+                .inputSchema(createHostBrowserSchema())
+                .build());
 
-        // Get search result details
-        tools.add(new McpTool(
-                "yacy_get_document",
-                "Get detailed information about a specific document",
-                createSchema(
-                        Map.of(
-                                "urlhash", Map.of("type", "string", "description", "URL hash of the document")
-                        ),
-                        List.of("urlhash")
-                )
-        ));
+        // Document tool
+        tools.add(McpToolDefinition.builder()
+                .name("yacy_get_document")
+                .description("Get document details from YaCy index")
+                .inputSchema(createDocumentSchema())
+                .build());
 
         return tools;
     }
@@ -120,87 +111,177 @@ public class McpService {
      * Execute a tool call
      */
     public McpToolCallResponse executeTool(McpToolCallRequest request) {
+        String toolName = request.getName();
+        Map<String, Object> args = request.getArguments();
+
+        log.info("Executing tool: {} with args: {}", toolName, args);
+
         try {
-            log.info("Executing tool: {} with arguments: {}", request.getName(), request.getArguments());
-
-            // Validate request
-            if (request.getName() == null || request.getName().isEmpty()) {
-                return McpToolCallResponse.error("Tool name is required");
-            }
-            
-            if (request.getArguments() == null) {
-                return McpToolCallResponse.error("Arguments cannot be null");
-            }
-
-            JsonNode result = switch (request.getName()) {
-                case "yacy_search" -> {
-                    String query = (String) request.getArguments().get("query");
-                    if (query == null || query.isEmpty()) {
-                        throw new IllegalArgumentException("Query parameter is required");
-                    }
-                    int count = getIntArg(request.getArguments(), "count", 10);
-                    int offset = getIntArg(request.getArguments(), "offset", 0);
-                    yield yaCyClient.search(query, count, offset);
-                }
-                case "yacy_get_status" -> yaCyClient.getStatus();
-                case "yacy_get_network" -> yaCyClient.getNetworkInfo();
-                case "yacy_start_crawl" -> {
-                    String url = (String) request.getArguments().get("url");
-                    if (url == null || url.isEmpty()) {
-                        throw new IllegalArgumentException("URL parameter is required");
-                    }
-                    int depth = getIntArg(request.getArguments(), "depth", 3);
-                    yield yaCyClient.startCrawl(url, depth);
-                }
-                case "yacy_get_index_info" -> yaCyClient.getIndexInfo();
-                case "yacy_get_peers" -> yaCyClient.getPeers();
-                case "yacy_get_performance" -> yaCyClient.getPerformance();
-                case "yacy_get_host_browser" -> {
-                    String path = (String) request.getArguments().getOrDefault("path", "");
-                    yield yaCyClient.getHostBrowser(path);
-                }
-                case "yacy_get_document" -> {
-                    String urlhash = (String) request.getArguments().get("urlhash");
-                    if (urlhash == null || urlhash.isEmpty()) {
-                        throw new IllegalArgumentException("URL hash parameter is required");
-                    }
-                    yield yaCyClient.getSearchResult(urlhash);
-                }
-                default -> throw new IllegalArgumentException("Unknown tool: " + request.getName());
+            return switch (toolName) {
+                case "yacy_search" -> executeSearch(args);
+                case "yacy_get_status" -> executeGetStatus();
+                case "yacy_get_network" -> executeGetNetwork();
+                case "yacy_start_crawl" -> executeStartCrawl(args);
+                case "yacy_get_index_info" -> executeGetIndexInfo();
+                case "yacy_get_peers" -> executeGetPeers();
+                case "yacy_get_performance" -> executeGetPerformance();
+                case "yacy_get_host_browser" -> executeGetHostBrowser(args);
+                case "yacy_get_document" -> executeGetDocument(args);
+                default -> McpToolCallResponse.error("Unknown tool: " + toolName);
             };
-
-            return McpToolCallResponse.success(result);
-        } catch (IllegalArgumentException e) {
-            log.warn("Invalid argument for tool {}: {}", request.getName(), e.getMessage());
-            return McpToolCallResponse.error(e.getMessage());
         } catch (Exception e) {
-            log.error("Error executing tool: " + request.getName(), e);
-            return McpToolCallResponse.error(e.getMessage());
+            log.error("Error executing tool: {}", toolName, e);
+            return McpToolCallResponse.error("Error executing tool: " + e.getMessage());
         }
     }
 
-    private Map<String, Object> createSchema(Map<String, Object> properties, List<String> required) {
+    private McpToolCallResponse executeSearch(Map<String, Object> args) throws IOException {
+        String query = (String) args.get("query");
+        int count = args.containsKey("count") ? (int) args.get("count") : 10;
+        int offset = args.containsKey("offset") ? (int) args.get("offset") : 0;
+
+        long startTime = System.currentTimeMillis();
+        JsonNode result = yaCyClient.search(query, count, offset);
+        long duration = System.currentTimeMillis() - startTime;
+
+        // Log search to database
+        int resultCount = result.has("channels") ? result.get("channels").size() : 0;
+        databaseService.logSearch(query, resultCount, duration);
+
+        return McpToolCallResponse.success(result);
+    }
+
+    private McpToolCallResponse executeGetStatus() throws IOException {
+        return McpToolCallResponse.success(yaCyClient.getStatus());
+    }
+
+    private McpToolCallResponse executeGetNetwork() throws IOException {
+        return McpToolCallResponse.success(yaCyClient.getNetworkInfo());
+    }
+
+    private McpToolCallResponse executeStartCrawl(Map<String, Object> args) throws IOException {
+        String url = (String) args.get("url");
+        int depth = args.containsKey("depth") ? (int) args.get("depth") : 0;
+
+        JsonNode result = yaCyClient.startCrawl(url, depth);
+
+        // Log crawl to database
+        databaseService.logCrawl(url, depth, "started");
+
+        return McpToolCallResponse.success(result);
+    }
+
+    private McpToolCallResponse executeGetIndexInfo() throws IOException {
+        return McpToolCallResponse.success(yaCyClient.getIndexInfo());
+    }
+
+    private McpToolCallResponse executeGetPeers() throws IOException {
+        return McpToolCallResponse.success(yaCyClient.getPeers());
+    }
+
+    private McpToolCallResponse executeGetPerformance() throws IOException {
+        return McpToolCallResponse.success(yaCyClient.getPerformance());
+    }
+
+    private McpToolCallResponse executeGetHostBrowser(Map<String, Object> args) throws IOException {
+        String host = (String) args.getOrDefault("host", "");
+        int count = args.containsKey("count") ? (int) args.get("count") : 10;
+        return McpToolCallResponse.success(yaCyClient.getHostBrowser(host, count));
+    }
+
+    private McpToolCallResponse executeGetDocument(Map<String, Object> args) throws IOException {
+        String url = (String) args.get("url");
+        return McpToolCallResponse.success(yaCyClient.getDocument(url));
+    }
+
+    // Schema creation helpers
+    private Map<String, Object> createEmptySchema() {
         Map<String, Object> schema = new HashMap<>();
         schema.put("type", "object");
-        schema.put("properties", properties);
-        if (!required.isEmpty()) {
-            schema.put("required", required);
-        }
+        schema.put("properties", new HashMap<>());
         return schema;
     }
 
-    private int getIntArg(Map<String, Object> args, String key, int defaultValue) {
-        Object value = args.get(key);
-        if (value instanceof Integer) {
-            return (Integer) value;
-        } else if (value instanceof String) {
-            try {
-                return Integer.parseInt((String) value);
-            } catch (NumberFormatException e) {
-                log.warn("Invalid integer value for {}: {}, using default: {}", key, value, defaultValue);
-                return defaultValue;
-            }
-        }
-        return defaultValue;
+    private Map<String, Object> createSearchSchema() {
+        Map<String, Object> schema = new HashMap<>();
+        schema.put("type", "object");
+
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("query", Map.of(
+                "type", "string",
+                "description", "Search query string"
+        ));
+        properties.put("count", Map.of(
+                "type", "integer",
+                "description", "Maximum number of results to return",
+                "default", 10
+        ));
+        properties.put("offset", Map.of(
+                "type", "integer",
+                "description", "Start offset for pagination",
+                "default", 0
+        ));
+
+        schema.put("properties", properties);
+        schema.put("required", List.of("query"));
+
+        return schema;
+    }
+
+    private Map<String, Object> createCrawlSchema() {
+        Map<String, Object> schema = new HashMap<>();
+        schema.put("type", "object");
+
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("url", Map.of(
+                "type", "string",
+                "description", "URL to crawl"
+        ));
+        properties.put("depth", Map.of(
+                "type", "integer",
+                "description", "Crawl depth",
+                "default", 0
+        ));
+
+        schema.put("properties", properties);
+        schema.put("required", List.of("url"));
+
+        return schema;
+    }
+
+    private Map<String, Object> createHostBrowserSchema() {
+        Map<String, Object> schema = new HashMap<>();
+        schema.put("type", "object");
+
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("host", Map.of(
+                "type", "string",
+                "description", "Host to browse"
+        ));
+        properties.put("count", Map.of(
+                "type", "integer",
+                "description", "Maximum number of results",
+                "default", 10
+        ));
+
+        schema.put("properties", properties);
+
+        return schema;
+    }
+
+    private Map<String, Object> createDocumentSchema() {
+        Map<String, Object> schema = new HashMap<>();
+        schema.put("type", "object");
+
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("url", Map.of(
+                "type", "string",
+                "description", "Document URL"
+        ));
+
+        schema.put("properties", properties);
+        schema.put("required", List.of("url"));
+
+        return schema;
     }
 }

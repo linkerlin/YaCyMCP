@@ -1,7 +1,8 @@
 package com.yacy.mcp.service;
 
-import lombok.extern.slf4j.Slf4j;
 import org.jooq.DSLContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
@@ -9,9 +10,10 @@ import jakarta.annotation.PostConstruct;
 /**
  * Service for managing search history in SQLite database
  */
-@Slf4j
 @Service
 public class DatabaseService {
+
+    private static final Logger log = LoggerFactory.getLogger(DatabaseService.class);
 
     private final DSLContext dsl;
 

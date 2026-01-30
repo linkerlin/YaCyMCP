@@ -96,6 +96,103 @@ mcp:
 2. 设置环境变量：`export DASHSCOPE_API_KEY=your-key-here`
 3. 启用DashScope：`export DASHSCOPE_ENABLED=true`
 
+## Kimi CLI 配置
+
+在 Kimi CLI 中使用此 MCP 服务，需要在配置文件中添加 MCP 服务器配置。
+
+### 1. 启动 MCP 服务
+
+确保 MCP 服务已启动并运行在 `http://localhost:8080`：
+
+```bash
+mvn spring-boot:run
+# 或
+java -jar target/yacy-mcp-1.0.0-SNAPSHOT.jar
+```
+
+### 2. 配置 Kimi CLI
+
+编辑 Kimi CLI 的配置文件（通常位于 `~/.kimi/config.json` 或项目根目录的 `.kimi/config.json`）：
+
+```json
+{
+  "mcpServers": {
+    "yacy-mcp": {
+      "command": "java",
+      "args": [
+        "-jar",
+        "/path/to/yacy-mcp-1.0.0-SNAPSHOT.jar"
+      ],
+      "env": {
+        "YACY_SERVER_URL": "http://localhost:8090",
+        "DASHSCOPE_API_KEY": "your-dashscope-api-key",
+        "DASHSCOPE_ENABLED": "false"
+      },
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}
+```
+
+**配置说明：**
+
+| 配置项 | 说明 | 默认值 |
+|--------|------|--------|
+| `command` | 启动命令 | `java` |
+| `args` | 命令参数 | `["-jar", "/path/to/yacy-mcp-1.0.0-SNAPSHOT.jar"]` |
+| `env.YACY_SERVER_URL` | YaCy 服务器地址 | `http://localhost:8090` |
+| `env.DASHSCOPE_API_KEY` | 阿里云 DashScope API 密钥 | 空 |
+| `env.DASHSCOPE_ENABLED` | 是否启用 AI 功能 | `false` |
+| `disabled` | 是否禁用此 MCP 服务器 | `false` |
+| `autoApprove` | 自动批准的操作列表 | `[]` |
+
+### 3. 使用 MCP 工具
+
+配置完成后，在 Kimi CLI 中可以直接使用以下工具：
+
+```
+@yacy_search query="人工智能" count=10
+@yacy_get_status
+@yacy_start_crawl url="https://example.com" depth=2
+```
+
+### 4. 完整配置示例
+
+```json
+{
+  "mcpServers": {
+    "yacy-mcp": {
+      "command": "java",
+      "args": [
+        "-jar",
+        "/Users/username/projects/YaCyMCP/target/yacy-mcp-1.0.0-SNAPSHOT.jar"
+      ],
+      "env": {
+        "YACY_SERVER_URL": "http://localhost:8090",
+        "YACY_USERNAME": "admin",
+        "YACY_PASSWORD": "",
+        "DASHSCOPE_API_KEY": "sk-xxxxxxxxxxxxxxxx",
+        "DASHSCOPE_ENABLED": "true",
+        "SERVER_PORT": "8080"
+      },
+      "disabled": false,
+      "autoApprove": ["yacy_search", "yacy_get_status"]
+    }
+  }
+}
+```
+
+### 5. 验证配置
+
+在 Kimi CLI 中运行以下命令验证 MCP 服务器是否正常工作：
+
+```bash
+@mcp list
+```
+
+如果配置正确，将看到 `yacy-mcp` 服务器及其可用工具列表。
+
 ## API端点
 
 ### 新的MCP标准端点 (推荐)

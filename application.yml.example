@@ -11,6 +11,17 @@ spring:
   datasource:
     driver-class-name: org.sqlite.JDBC
     url: jdbc:sqlite:data/yacy_mcp.db
+  
+  ai:
+    mcp:
+      server:
+        enabled: true
+        name: YaCy MCP Service
+        version: 1.0.0
+      client:
+        enabled: false
+    dashscope:
+      api-key: ${DASHSCOPE_API_KEY:}
 
 # YaCy configuration
 yacy:
@@ -25,14 +36,24 @@ yacy:
   connection-timeout: 30000
   socket-timeout: 30000
 
-# MCP configuration
+# MCP configuration (Spring AI style)
 mcp:
   server-name: YaCy MCP Service
   server-version: 1.0.0
   server-port: 8080
-  
-  # Enable agent scope integration (for future use)
-  agent-scope-enabled: true
+
+# AgentScope configuration
+agentscope:
+  # Enable AgentScope integration
+  enabled: false
+  llm:
+    provider: dashscope
+    model: qwen-turbo
+
+# DashScope configuration (for Spring AI and AgentScope)
+dashscope:
+  api:
+    key: ${DASHSCOPE_API_KEY:}
 
 # Logging configuration
 logging:
@@ -43,11 +64,17 @@ logging:
     # Spring framework logging
     org.springframework: INFO
     
+    # Spring AI logging
+    org.springframework.ai: INFO
+    
     # jOOQ logging (useful for debugging SQL)
     org.jooq: INFO
     
     # HTTP client logging (for debugging API calls)
     org.apache.hc.client5: INFO
+    
+    # AgentScope logging
+    io.agentscope: INFO
     
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"

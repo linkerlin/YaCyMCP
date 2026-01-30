@@ -15,8 +15,9 @@ spring:
       enabled: ${DASHSCOPE_ENABLED:false}  # Enable when API key is available
 
 # YaCy configuration
+# Priority: YACY_API_URL (env) > YACY_SERVER_URL (env) > application.yml > default (http://localhost:8090)
 yacy:
-  server-url: ${YACY_SERVER_URL:http://localhost:8090}
+  server-url: ${YACY_API_URL:${YACY_SERVER_URL:http://localhost:8090}}
   username: ${YACY_USERNAME:admin}
   password: ${YACY_PASSWORD:}
   connection-timeout: 30000

@@ -1,69 +1,69 @@
 package com.yacy.mcp.controller;
 
-import com.yacy.mcp.config.McpConfig;
-import com.yacy.mcp.model.*;
+import com.yacy.mcp.model.McpToolCallRequest;
+import com.yacy.mcp.model.McpToolCallResponse;
+import com.yacy.mcp.model.McpToolDefinition;
 import com.yacy.mcp.service.McpService;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
- * REST Controller for MCP endpoints
- * @deprecated Use McpSseController with MCP SDK instead
+ * MCP REST API Controller
+ * Provides endpoints for MCP tool discovery and execution
  */
-@Deprecated
-@Slf4j
 @RestController
-@RequestMapping("/mcp/legacy")
+@RequestMapping("/mcp")
 public class McpController {
 
-    private final McpService mcpService;
-    private final McpConfig mcpConfig;
+    private static final Logger log = LoggerFactory.getLogger(McpController.class);
 
-    public McpController(McpService mcpService, McpConfig mcpConfig) {
+    private final McpService mcpService;
+
+    public McpController(McpService mcpService) {
         this.mcpService = mcpService;
-        this.mcpConfig = mcpConfig;
     }
 
     /**
-     * Get server information
+     * Get server information and available tools
      */
     @GetMapping("/info")
-    public ResponseEntity<McpServerInfo> getServerInfo() {
-        McpServerInfo info = new McpServerInfo(
-                mcpConfig.getServerName(),
-                mcpConfig.getServerVersion(),
-                Arrays.asList("tools", "yacy-api")
+    public Map<String, Object> getInfo() {
+        log.info("Getting MCP server info");
+        return Map.of(
+                "name", "YaCy MCP Server",
+                "version", "1.0.0",
+                "description", "MCP server providing YaCy search engine API functionalities",
+                "tools", mcpService.getToolDefinitions()
         );
-        return ResponseEntity.ok(info);
     }
 
     /**
-     * List available tools
+     * Get all available tools
      */
     @GetMapping("/tools")
-    public ResponseEntity<List<McpTool>> listTools() {
-        return ResponseEntity.ok(mcpService.listTools());
+    public List<McpToolDefinition> getTools() {
+        log.info("Getting available MCP tools");
+        return mcpService.getToolDefinitions();
     }
 
     /**
-     * Execute a tool
+     * Execute a tool call
      */
-    @PostMapping("/tools/execute")
-    public ResponseEntity<McpToolCallResponse> executeTool(@RequestBody McpToolCallRequest request) {
-        log.info("Received tool execution request: {}", request);
-        McpToolCallResponse response = mcpService.executeTool(request);
-        return ResponseEntity.ok(response);
+    @PostMapping("/tools/call")
+    public McpToolCallResponse callTool(@RequestBody McpToolCallRequest request) {
+        log.info("Received tool call: {}", request.getName());
+        return mcpService.executeTool(request);
     }
 
     /**
      * Health check endpoint
      */
     @GetMapping("/health")
-    public ResponseEntity<String> health() {
-        return ResponseEntity.ok("OK");
+    public Map<String, String> health() {
+        return Map.of("status", "healthy");
     }
 }
