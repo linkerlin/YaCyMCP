@@ -6,6 +6,7 @@ spring:
     name: yacy-mcp-service
   main:
     banner-mode: off
+    log-startup-info: false
   
   datasource:
     driver-class-name: org.sqlite.JDBC
@@ -35,8 +36,7 @@ logging:
   level:
     com.yacy.mcp: INFO
     org.springframework: INFO
+    org.springframework.boot: WARN
     org.jooq: DEBUG
   file:
     name: yacy-mcp.log
-  pattern:
-    file: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"

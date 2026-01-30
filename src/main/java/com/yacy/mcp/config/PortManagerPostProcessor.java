@@ -3,33 +3,35 @@ package com.yacy.mcp.config;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.Environment;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.net.ServerSocket;
 
 public class PortManagerPostProcessor implements EnvironmentPostProcessor {
+
+    private static final PrintStream stderr = System.err;
 
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         int serverPort = Integer.parseInt(environment.getProperty("server.port", "8990"));
 
-        System.out.println("[PortManager] Checking port " + serverPort + "...");
+        stderr.println("[PortManager] Checking port " + serverPort + "...");
 
         if (isPortInUse(serverPort)) {
             int pid = getProcessIdUsingPort(serverPort);
             if (pid > 0) {
-                System.out.println("[PortManager] Port " + serverPort + " is in use by process " + pid + ". Terminating...");
+                stderr.println("[PortManager] Port " + serverPort + " is in use by process " + pid + ". Terminating...");
                 if (killProcess(pid)) {
-                    System.out.println("[PortManager] Successfully terminated process " + pid);
+                    stderr.println("[PortManager] Successfully terminated process " + pid);
                     waitForPortToBeFree(serverPort);
                 } else {
-                    System.out.println("[PortManager] Failed to terminate process " + pid);
+                    stderr.println("[PortManager] Failed to terminate process " + pid);
                 }
             }
         } else {
-            System.out.println("[PortManager] Port " + serverPort + " is free");
+            stderr.println("[PortManager] Port " + serverPort + " is free");
         }
     }
 
@@ -54,7 +56,7 @@ public class PortManagerPostProcessor implements EnvironmentPostProcessor {
                 return Integer.parseInt(line.trim());
             }
         } catch (Exception e) {
-            System.out.println("[PortManager] Failed to get PID: " + e.getMessage());
+            stderr.println("[PortManager] Failed to get PID: " + e.getMessage());
         }
         return -1;
     }
@@ -65,7 +67,7 @@ public class PortManagerPostProcessor implements EnvironmentPostProcessor {
             int exitCode = killProcess.waitFor();
             return exitCode == 0;
         } catch (Exception e) {
-            System.out.println("[PortManager] Failed to kill: " + e.getMessage());
+            stderr.println("[PortManager] Failed to kill: " + e.getMessage());
             return false;
         }
     }
@@ -82,9 +84,9 @@ public class PortManagerPostProcessor implements EnvironmentPostProcessor {
             }
         }
         if (isPortInUse(port)) {
-            System.out.println("[PortManager] Port " + port + " still in use after " + attempts + " attempts");
+            stderr.println("[PortManager] Port " + port + " still in use after " + attempts + " attempts");
         } else {
-            System.out.println("[PortManager] Port " + port + " is now free");
+            stderr.println("[PortManager] Port " + port + " is now free");
         }
     }
 }
