@@ -198,7 +198,7 @@ Windows 默认使用 GBK 编码，而 MCP 协议使用 UTF-8，需要多个编�
 ```json
 {
   "mcpServers": {
-    "yacy-mcp": {
+    "yacy": {
       "command": "C:/Program Files/Java/jdk-17/bin/java.exe",
       "args": [
         "-Dfile.encoding=UTF-8",

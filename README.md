@@ -117,7 +117,7 @@ java -jar target/yacy-mcp-1.0.0-SNAPSHOT.jar
 ```json
 {
   "mcpServers": {
-    "yacy-mcp": {
+    "yacy": {
       "command": "java",
       "args": [
         "-jar",
@@ -167,7 +167,7 @@ java -jar target/yacy-mcp-1.0.0-SNAPSHOT.jar
 ```json
 {
   "mcpServers": {
-    "yacy-mcp": {
+    "yacy": {
       "command": "java",
       "args": [
         "-jar",
