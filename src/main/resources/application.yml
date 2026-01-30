@@ -5,11 +5,7 @@ spring:
     banner-mode: off
     log-startup-info: false
     web-application-type: none
-  
-  datasource:
-    driver-class-name: org.sqlite.JDBC
-    url: jdbc:sqlite:data/yacy_mcp.db
-  
+
   ai:
     dashscope:
       api-key: ${DASHSCOPE_API_KEY:}  # Set via environment variable

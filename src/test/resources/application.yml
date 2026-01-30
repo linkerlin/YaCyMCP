@@ -1,18 +1,13 @@
 spring:
   application:
-    name: yacy-mcp-service
+    name: yacy-mcp-service-test
   main:
     web-application-type: none
-  
-  datasource:
-    driver-class-name: org.sqlite.JDBC
-    url: jdbc:sqlite:data/yacy_mcp_test.db
 
   ai:
     dashscope:
-      enabled: false  # Disable DashScope for tests
+      enabled: false
 
-# YaCy configuration
 yacy:
   server-url: http://localhost:8090
   username: admin
@@ -20,12 +15,10 @@ yacy:
   connection-timeout: 30000
   socket-timeout: 30000
 
-# MCP configuration
 mcp:
-  server-name: YaCy MCP Service
+  server-name: YaCy MCP Service Test
   server-version: 1.0.0
 
-# Logging configuration
 logging:
   level:
     com.yacy.mcp: INFO
