@@ -13,15 +13,25 @@
         </encoder>
     </appender>
 
+    <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.err</target>
+        <encoder>
+            <pattern>%msg%n</pattern>
+        </encoder>
+    </appender>
+
     <root level="INFO">
         <appender-ref ref="FILE" />
+        <appender-ref ref="STDERR" />
     </root>
 
     <logger name="org.springframework.boot.SpringBootBanner" level="OFF"/>
     <logger name="org.springframework.boot" level="WARN"/>
-    <logger name="org.springframework" level="INFO"/>
-    <logger name="org.apache" level="INFO"/>
+    <logger name="org.springframework.boot.autoconfigure" level="WARN"/>
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="org.apache" level="WARN"/>
+    <logger name="org.apache.hc" level="WARN"/>
     <logger name="io.netty" level="WARN"/>
+    <logger name="org.jooq" level="WARN"/>
     <logger name="com.yacy.mcp" level="INFO"/>
-    <logger name="org.jooq" level="DEBUG"/>
 </configuration>

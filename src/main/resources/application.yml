@@ -34,8 +34,9 @@ mcp:
 # Logging configuration - ALL logs go to file and stderr, NOT stdout
 logging:
   level:
+    root: INFO
     com.yacy.mcp: INFO
-    org.springframework: INFO
+    org.springframework: WARN
     org.springframework.boot: WARN
     org.springframework.boot.autoconfigure: WARN
     org.apache: WARN
@@ -44,5 +45,6 @@ logging:
   file:
     name: yacy-mcp.log
     append: true
-  pattern:
-    console: ""
+  charset:
+    console: UTF-8
+    file: UTF-8
