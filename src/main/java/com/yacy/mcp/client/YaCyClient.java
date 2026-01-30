@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Client for interacting with YaCy API
@@ -78,10 +80,22 @@ public class YaCyClient {
 
     /**
      * Get YaCy status information
+     * Uses Solr stats API which is publicly accessible
      */
     public JsonNode getStatus() throws IOException {
-        String url = config.getServerUrl() + "/Status.json";
-        return executeGet(url);
+        // Use Solr stats to get basic status info (publicly accessible)
+        String url = config.getServerUrl() + "/solr/select?q=*:*&rows=0&wt=json";
+        JsonNode solrResult = executeGet(url);
+        
+        // Also try to get version info from search API
+        Map<String, Object> status = new java.util.LinkedHashMap<>();
+        status.put("serverUrl", config.getServerUrl());
+        status.put("solrStatus", solrResult.path("responseHeader").path("status").asInt());
+        status.put("documentsInIndex", solrResult.path("response").path("numFound").asLong());
+        status.put("queryTime", solrResult.path("responseHeader").path("QTime").asInt());
+        status.put("available", true);
+        
+        return objectMapper.valueToTree(status);
     }
 
     /**
@@ -114,10 +128,31 @@ public class YaCyClient {
 
     /**
      * Get index information
+     * Uses Solr stats API which is publicly accessible
      */
     public JsonNode getIndexInfo() throws IOException {
-        String url = config.getServerUrl() + "/IndexBrowser_p.json";
-        return executeGet(url);
+        // Use Solr facet query to get index statistics (publicly accessible)
+        String url = config.getServerUrl() + "/solr/select?q=*:*&rows=0&wt=json&facet=true&facet.field=host_s&facet.limit=10";
+        JsonNode solrResult = executeGet(url);
+        
+        Map<String, Object> indexInfo = new java.util.LinkedHashMap<>();
+        indexInfo.put("totalDocuments", solrResult.path("response").path("numFound").asLong());
+        indexInfo.put("queryTime", solrResult.path("responseHeader").path("QTime").asInt());
+        
+        // Extract top hosts from facets if available
+        JsonNode hostFacets = solrResult.path("facet_counts").path("facet_fields").path("host_s");
+        if (!hostFacets.isMissingNode() && hostFacets.isArray()) {
+            List<Map<String, Object>> topHosts = new java.util.ArrayList<>();
+            for (int i = 0; i < hostFacets.size() - 1; i += 2) {
+                Map<String, Object> hostEntry = new java.util.LinkedHashMap<>();
+                hostEntry.put("host", hostFacets.get(i).asText());
+                hostEntry.put("count", hostFacets.get(i + 1).asLong());
+                topHosts.add(hostEntry);
+            }
+            indexInfo.put("topHosts", topHosts);
+        }
+        
+        return objectMapper.valueToTree(indexInfo);
     }
 
     /**
@@ -130,10 +165,24 @@ public class YaCyClient {
 
     /**
      * Get performance statistics
+     * Uses Solr ping and stats which are publicly accessible
      */
     public JsonNode getPerformance() throws IOException {
-        String url = config.getServerUrl() + "/PerformanceMemory.json";
-        return executeGet(url);
+        // Use multiple Solr queries to measure performance
+        long startTime = System.currentTimeMillis();
+        String url = config.getServerUrl() + "/solr/select?q=*:*&rows=1&wt=json";
+        JsonNode solrResult = executeGet(url);
+        long responseTime = System.currentTimeMillis() - startTime;
+        
+        Map<String, Object> performance = new java.util.LinkedHashMap<>();
+        performance.put("solrResponseTimeMs", responseTime);
+        performance.put("solrQueryTimeMs", solrResult.path("responseHeader").path("QTime").asInt());
+        performance.put("solrStatus", solrResult.path("responseHeader").path("status").asInt());
+        performance.put("totalDocuments", solrResult.path("response").path("numFound").asLong());
+        performance.put("serverAvailable", true);
+        performance.put("timestamp", java.time.Instant.now().toString());
+        
+        return objectMapper.valueToTree(performance);
     }
 
     /**
