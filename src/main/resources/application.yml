@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: yacy-mcp-service
+  main:
+    banner-mode: off
   
   datasource:
     driver-class-name: org.sqlite.JDBC
@@ -28,11 +30,13 @@ mcp:
   server-name: YaCy MCP Service
   server-version: 1.0.0
 
-# Logging configuration
+# Logging configuration - logs go to file only, not stdout
 logging:
   level:
     com.yacy.mcp: INFO
     org.springframework: INFO
     org.jooq: DEBUG
+  file:
+    name: yacy-mcp.log
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
