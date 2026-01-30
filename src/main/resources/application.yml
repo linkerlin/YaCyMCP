@@ -31,12 +31,18 @@ mcp:
   server-name: YaCy MCP Service
   server-version: 1.0.0
 
-# Logging configuration - logs go to file only, not stdout
+# Logging configuration - ALL logs go to file and stderr, NOT stdout
 logging:
   level:
     com.yacy.mcp: INFO
     org.springframework: INFO
     org.springframework.boot: WARN
-    org.jooq: DEBUG
+    org.springframework.boot.autoconfigure: WARN
+    org.apache: WARN
+    io.netty: WARN
+    org.jooq: WARN
   file:
     name: yacy-mcp.log
+    append: true
+  pattern:
+    console: ""

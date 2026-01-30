@@ -1,47 +1,44 @@
 package com.yacy.mcp;
 
+import com.yacy.mcp.config.McpServerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.core.env.Environment;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
 
-/**
- * YaCy MCP Service Application
- *
- * A pure Java MCP service providing YaCy search engine API functionalities.
- *
- * Technology Stack:
- * - Spring Boot 3.2.1 (Web framework)
- * - Spring AI Alibaba 1.1.0.0 (MCP + AI integration)
- * - AgentScope-Java 1.0.8 (Agent runtime platform)
- * - SQLite + jOOQ (Database)
- * - MCP Java SDK 0.8.0 (Official MCP protocol support)
- *
- * MCP Tools Provided:
- * - yacy_search: Search the YaCy index
- * - yacy_get_status: Get server status
- * - yacy_get_network: Get network information
- * - yacy_start_crawl: Start web crawling
- * - yacy_get_index_info: Get index information
- * - yacy_get_peers: Get peer information
- * - yacy_get_performance: Get performance stats
- * - yacy_get_host_browser: Browse hosts
- * - yacy_get_document: Get document details
- *
- * Features:
- * - Spring AI Alibaba as MCP base implementation
- * - Reuse AgentScope-Java components (Agent, Pipeline)
- * - Intelligent search with AI enhancement
- * - Async Agent execution
- */
 @SpringBootApplication
 public class YaCyMcpApplication {
 
     private static final Logger log = LoggerFactory.getLogger(YaCyMcpApplication.class);
 
     public static void main(String[] args) {
-        log.info("Starting YaCy MCP Service with Spring AI Alibaba + AgentScope-Java...");
-        SpringApplication.run(YaCyMcpApplication.class, args);
-        log.info("YaCy MCP Service started successfully");
+        ApplicationContext context = SpringApplication.run(YaCyMcpApplication.class, args);
+        Environment env = context.getEnvironment();
+
+        boolean mcpDisabled = System.getenv(McpServerConfig.ENV_DISABLE_MCP_STDIO) != null
+                && Boolean.parseBoolean(System.getenv(McpServerConfig.ENV_DISABLE_MCP_STDIO));
+
+        if (mcpDisabled) {
+            log.info("YaCy MCP Service started as web server only (MCP stdio disabled)");
+        } else {
+            log.info("YaCy MCP Service started - MCP stdio active on stdin/stdout");
+            log.info("Web server running on port 8990 for health checks");
+        }
+    }
+
+    @Configuration
+    public static class McpModeConfig {
+
+        @Bean
+        @Primary
+        public ServerProperties serverProperties() {
+            return new ServerProperties();
+        }
     }
 }
