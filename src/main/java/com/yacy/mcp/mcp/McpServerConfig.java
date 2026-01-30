@@ -25,15 +25,19 @@ public class McpServerConfig {
     private final YaCyClient yaCyClient;
     private final ObjectMapper objectMapper;
 
-    public McpServerConfig(YaCyClient yaCyClient) {
+    public McpServerConfig(YaCyClient yaCyClient, ObjectMapper objectMapper) {
         this.yaCyClient = yaCyClient;
-        this.objectMapper = new ObjectMapper();
+        this.objectMapper = objectMapper;
     }
 
     @Bean
     public McpSyncServer mcpServer() {
-        // Create transport provider
+        // Create transport provider with ObjectMapper
         WebFluxSseServerTransportProvider transportProvider = new WebFluxSseServerTransportProvider.Builder()
+            .objectMapper(objectMapper)
+            .basePath("/mcp")
+            .sseEndpoint("/sse")
+            .messageEndpoint("/message")
             .build();
         
         // Create MCP server with all YaCy tools

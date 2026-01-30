@@ -12,10 +12,12 @@ import java.util.List;
 
 /**
  * REST Controller for MCP endpoints
+ * @deprecated Use McpSseController with MCP SDK instead
  */
+@Deprecated
 @Slf4j
 @RestController
-@RequestMapping("/mcp")
+@RequestMapping("/mcp/legacy")
 public class McpController {
 
     private final McpService mcpService;

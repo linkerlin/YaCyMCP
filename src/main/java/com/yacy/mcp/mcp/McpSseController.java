@@ -21,10 +21,10 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequestMapping("/mcp")
 public class McpSseController {
 
-    private final McpServer mcpServer;
+    private final io.modelcontextprotocol.server.McpSyncServer mcpServer;
     private final Map<String, Sinks.Many<ServerSentEvent<String>>> sessions = new ConcurrentHashMap<>();
 
-    public McpSseController(McpServer mcpServer) {
+    public McpSseController(io.modelcontextprotocol.server.McpSyncServer mcpServer) {
         this.mcpServer = mcpServer;
     }
 

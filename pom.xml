@@ -99,6 +99,13 @@
             <version>0.10.0</version>
         </dependency>
 
+        <!-- JSON Schema Validator for MCP -->
+        <dependency>
+            <groupId>com.networknt</groupId>
+            <artifactId>json-schema-validator</artifactId>
+            <version>1.5.1</version>
+        </dependency>
+
         <!-- ==================== AgentScope-Java (运行时基座) ==================== -->
         <!-- 使用官方推荐的 all-in-one 依赖 -->
         <dependency>
