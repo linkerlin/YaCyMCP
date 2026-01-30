@@ -1,2 +1,2 @@
-org.springframework.boot.env.EnvironmentPostProcessor=\
-com.yacy.mcp.config.PortManagerPostProcessor
+# EnvironmentPostProcessor configurations
+# Empty - pure stdio mode, no custom post-processing needed
