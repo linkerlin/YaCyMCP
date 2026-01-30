@@ -124,7 +124,9 @@ java -jar target/yacy-mcp-1.0.0-SNAPSHOT.jar
         "/path/to/yacy-mcp-1.0.0-SNAPSHOT.jar"
       ],
       "env": {
-        "YACY_SERVER_URL": "http://localhost:8090",
+        "YACY_API_URL": "http://localhost:8090",
+        "YACY_USERNAME": "admin",
+        "YACY_PASSWORD": "steper123456789",
         "DASHSCOPE_API_KEY": "your-dashscope-api-key",
         "DASHSCOPE_ENABLED": "false"
       },
@@ -141,7 +143,10 @@ java -jar target/yacy-mcp-1.0.0-SNAPSHOT.jar
 |--------|------|--------|
 | `command` | 启动命令 | `java` |
 | `args` | 命令参数 | `["-jar", "/path/to/yacy-mcp-1.0.0-SNAPSHOT.jar"]` |
-| `env.YACY_SERVER_URL` | YaCy 服务器地址 | `http://localhost:8090` |
+| `env.YACY_API_URL` | YaCy 服务器地址（优先） | `http://localhost:8090` |
+| `env.YACY_SERVER_URL` | YaCy 服务器地址（后备） | `http://localhost:8090` |
+| `env.YACY_USERNAME` | YaCy 管理员用户名 | `admin` |
+| `env.YACY_PASSWORD` | YaCy 管理员密码 | `steper123456789` |
 | `env.DASHSCOPE_API_KEY` | 阿里云 DashScope API 密钥 | 空 |
 | `env.DASHSCOPE_ENABLED` | 是否启用 AI 功能 | `false` |
 | `disabled` | 是否禁用此 MCP 服务器 | `false` |
@@ -169,9 +174,9 @@ java -jar target/yacy-mcp-1.0.0-SNAPSHOT.jar
         "/Users/username/projects/YaCyMCP/target/yacy-mcp-1.0.0-SNAPSHOT.jar"
       ],
       "env": {
-        "YACY_SERVER_URL": "http://localhost:8090",
+        "YACY_API_URL": "http://localhost:8090",
         "YACY_USERNAME": "admin",
-        "YACY_PASSWORD": "",
+        "YACY_PASSWORD": "steper123456789",
         "DASHSCOPE_API_KEY": "sk-xxxxxxxxxxxxxxxx",
         "DASHSCOPE_ENABLED": "true",
         "SERVER_PORT": "8990"

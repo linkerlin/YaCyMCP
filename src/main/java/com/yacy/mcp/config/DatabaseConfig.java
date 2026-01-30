@@ -18,7 +18,7 @@ import javax.sql.DataSource;
 @Configuration
 public class DatabaseConfig {
 
-    @Value("${spring.datasource.url:jdbc:sqlite:yacy-mcp.db}")
+    @Value("${spring.datasource.url:jdbc:sqlite:data/yacy_mcp.db}")
     private String databaseUrl;
 
     @Bean
